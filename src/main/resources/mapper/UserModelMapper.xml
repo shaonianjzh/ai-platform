@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shaonian.project.mapper.UserModelMapper">
+
+    <resultMap id="BaseResultMap" type="com.shaonian.project.model.entity.UserModel">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="modelId" column="modelId" jdbcType="BIGINT"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="chatData" column="chatData" jdbcType="VARCHAR"/>
+            <result property="genResult" column="genResult" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="execMessage" column="execMessage" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,modelId,userId,
+        chatData,genResult,status,
+        execMessage,createTime,updateTime,
+        isDelete
+    </sql>
+</mapper>

@@ -41,7 +41,7 @@ public class User implements Serializable {
     private Integer gender;
 
     /**
-     * 用户角色: user, admin
+     * 用户角色：user / admin
      */
     private String userRole;
 
@@ -49,25 +49,6 @@ public class User implements Serializable {
      * 密码
      */
     private String userPassword;
-
-    /**
-     * 邮箱
-     */
-    private String email;
-
-    /**
-     * 状态 0-停用，1-启用
-     */
-    private Integer status;
-
-    private String accessKey;
-
-    private String secretKey;
-
-    /**
-     * 接口调用总次数 （默认50次）
-     */
-    private Integer callNum;
 
     /**
      * 创建时间
@@ -84,6 +65,31 @@ public class User implements Serializable {
      */
     @TableLogic
     private Integer isDelete;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 状态0-停用 1-启用
+     */
+    private Integer status;
+
+    /**
+     * accessKey
+     */
+    private String accessKey;
+
+    /**
+     * secretKey
+     */
+    private String secretKey;
+
+    /**
+     * 接口调用次数 默认有50次
+     */
+    private Integer callNum;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

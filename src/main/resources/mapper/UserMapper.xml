@@ -5,22 +5,28 @@
 <mapper namespace="com.shaonian.project.mapper.UserMapper">
 
     <resultMap id="BaseResultMap" type="com.shaonian.project.model.entity.User">
-        <id property="id" column="id" jdbcType="BIGINT"/>
-        <result property="userName" column="userName" jdbcType="VARCHAR"/>
-        <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
-        <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
-        <result property="gender" column="gender" jdbcType="TINYINT"/>
-        <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
-        <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
-        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userName" column="userName" jdbcType="VARCHAR"/>
+            <result property="userAccount" column="userAccount" jdbcType="VARCHAR"/>
+            <result property="userAvatar" column="userAvatar" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="TINYINT"/>
+            <result property="userRole" column="userRole" jdbcType="VARCHAR"/>
+            <result property="userPassword" column="userPassword" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+            <result property="email" column="email" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="accessKey" column="accessKey" jdbcType="VARCHAR"/>
+            <result property="secretKey" column="secretKey" jdbcType="VARCHAR"/>
+            <result property="callNum" column="callNum" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id,userName,userAccount,
         userAvatar,gender,userRole,
         userPassword,createTime,updateTime,
-        isDelete
+        isDelete,email,status,
+        accessKey,secretKey,callNum
     </sql>
 </mapper>
