@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ai_platform
+    username: root
+    password: 123456
+
+  # redis 配置
+  redis:
+    port: 6379
+    host: localhost
+    database: 0
+
+  mail:
+    host: #发送邮件服务器
+    password: #密码
+    username: #你的邮箱
+
+  rabbitmq:
+    host: #你的地址
+    port: 5672
+    username: #用户名
+    password: #密码
+
+#讯飞AI 配置
+ai:
+  xunfei:
+    appId:
+    apiKey:
+    apiSecret:
