@@ -1,9 +1,10 @@
 package com.shaonian.project.model.dto.user;
 
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户更新请求
@@ -32,13 +33,9 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userAvatar;
 
-    /**
-     * 性别
-     */
-    private Integer gender;
 
     /**
-     * 用户角色: user, admin
+     * 用户角色：user/admin/vip/ban
      */
     private String userRole;
 
@@ -47,6 +44,31 @@ public class UserUpdateRequest implements Serializable {
      */
     private String userPassword;
 
-    @TableField(exist = false)
+    /**
+     * 是否删除
+     */
+    private Integer isDelete;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 接口调用次数 默认有50次
+     */
+    private Integer callNum;
+
+    /**
+     * 到期时间
+     */
+    @JsonFormat(pattern="yyyy-MM-dd" ,timezone = "GMT+8")
+    private Date expireTime;
+
+    /**
+     * vip类型
+     */
+    private String vipType;
+
     private static final long serialVersionUID = 1L;
 }

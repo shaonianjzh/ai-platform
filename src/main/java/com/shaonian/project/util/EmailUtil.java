@@ -19,14 +19,14 @@ public class EmailUtil {
     @Resource
     private JavaMailSender javaMailSender;
 
-    private static final String subject = "验证码";
+    private static final String subject = "AI平台验证码";
 
     public void sendCode(String email,String code){
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(fromEmail);
         message.setTo(email);
         message.setSubject(subject);
-        message.setText("你好，注册AI平台的验证码为 "+code+" 请再五分钟内验证。");
+        message.setText("您好，您注册AI平台的验证码为 "+code+" 请再五分钟内验证。若不是本人注册，请忽略此消息");
         javaMailSender.send(message);
     }
 }

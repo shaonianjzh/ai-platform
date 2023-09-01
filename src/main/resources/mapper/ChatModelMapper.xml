@@ -9,6 +9,7 @@
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="prompt" column="prompt" jdbcType="VARCHAR"/>
             <result property="img" column="img" jdbcType="VARCHAR"/>
+            <result property="random" column="random" jdbcType="DOUBLE"/>
             <result property="categoryId" column="categoryId" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
@@ -18,7 +19,7 @@
 
     <sql id="Base_Column_List">
         id,name,prompt,
-        img,categoryId,createTime,
+        img,random,categoryId,createTime,
         udpateTime,isOpen,isDelete
     </sql>
 </mapper>

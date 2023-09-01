@@ -29,5 +29,16 @@ public interface UserConstant {
      */
     String ADMIN_ROLE = "admin";
 
+    /**
+     * 会员
+     */
+    String VIP_USER = "vipUser";
+
+    /**
+     * 被封号
+     */
+
+    String BAN = "ban";
+
     // endregion
 }

@@ -10,4 +10,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface ChatModelService extends IService<ChatModel> {
 
+    void validChatModel(ChatModel chatModel, boolean b);
 }

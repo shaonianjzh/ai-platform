@@ -8,6 +8,7 @@ import java.util.Date;
 
 /**
  * 
+ * @author 少年
  * @TableName chat_model
  */
 @TableName(value ="chat_model")
@@ -18,6 +19,11 @@ public class ChatModel implements Serializable {
      */
     @TableId(type = IdType.AUTO)
     private Long id;
+
+    /**
+     * 创建人
+     */
+    private Long userId;
 
     /**
      * 模型名称
@@ -33,6 +39,11 @@ public class ChatModel implements Serializable {
      * 图标路径
      */
     private String img;
+
+    /**
+     * 随机值
+     */
+    private Double random;
 
     /**
      * 分类

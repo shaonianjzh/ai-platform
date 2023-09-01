@@ -15,13 +15,6 @@ import java.lang.annotation.Target;
 public @interface AuthCheck {
 
     /**
-     * 有任何一个角色
-     *
-     * @return
-     */
-    String[] anyRole() default "";
-
-    /**
      * 必须有某个角色
      *
      * @return

@@ -1,5 +1,10 @@
 package com.shaonian.project.aop;
 
+import com.shaonian.project.common.ErrorCode;
+import com.shaonian.project.exception.BusinessException;
+import com.shaonian.project.model.entity.User;
+import com.shaonian.project.model.enums.UserRoleEnum;
+import com.shaonian.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -11,6 +16,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;
 
@@ -24,6 +30,8 @@ import java.util.UUID;
 @Slf4j
 public class LogInterceptor {
 
+    @Resource
+    private UserService userService;
     /**
      * 执行拦截
      */
@@ -50,6 +58,12 @@ public class LogInterceptor {
         stopWatch.stop();
         long totalTimeMillis = stopWatch.getTotalTimeMillis();
         log.info("request end, id: {}, cost: {}ms", requestId, totalTimeMillis);
+
+        //如果用户被封号，禁止访问
+        User loginUser = userService.getLoginUserPermitNull(httpServletRequest);
+        if(loginUser!=null&&UserRoleEnum.BAN.getValue().equals(loginUser.getUserRole())){
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"您已被封号");
+        }
         return result;
     }
 }

@@ -8,10 +8,10 @@ import java.util.Date;
 
 /**
  * 用户
- *
+ * @author 少年
  * @TableName user
  */
-@TableName(value = "user")
+@TableName(value ="user")
 @Data
 public class User implements Serializable {
     /**
@@ -35,13 +35,9 @@ public class User implements Serializable {
      */
     private String userAvatar;
 
-    /**
-     * 性别
-     */
-    private Integer gender;
 
     /**
-     * 用户角色：user / admin
+     * 用户角色：user/admin/vip/ban
      */
     private String userRole;
 
@@ -71,10 +67,6 @@ public class User implements Serializable {
      */
     private String email;
 
-    /**
-     * 状态0-停用 1-启用
-     */
-    private Integer status;
 
     /**
      * accessKey
@@ -90,6 +82,16 @@ public class User implements Serializable {
      * 接口调用次数 默认有50次
      */
     private Integer callNum;
+
+    /**
+     * 到期时间
+     */
+    private Date expireTime;
+
+    /**
+     * vip类型
+     */
+    private String vipType;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

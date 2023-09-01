@@ -32,13 +32,9 @@ public class UserVO implements Serializable {
      */
     private String userAvatar;
 
-    /**
-     * 性别
-     */
-    private Integer gender;
 
     /**
-     * 用户角色: user, admin
+     * 用户角色：user / admin/vip
      */
     private String userRole;
 
@@ -51,6 +47,37 @@ public class UserVO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * accessKey
+     */
+    private String accessKey;
+
+    /**
+     * secretKey
+     */
+    private String secretKey;
+
+    /**
+     * 接口调用次数 默认有50次
+     */
+    private Integer callNum;
+
+    /**
+     * 到期时间
+     */
+    private Date expireTime;
+
+    /**
+     * vip类型
+     */
+    private String vipType;
 
     private static final long serialVersionUID = 1L;
 }

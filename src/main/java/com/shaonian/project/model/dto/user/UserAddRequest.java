@@ -3,6 +3,7 @@ package com.shaonian.project.model.dto.user;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 用户创建请求
@@ -11,6 +12,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserAddRequest implements Serializable {
+
 
     /**
      * 用户昵称
@@ -27,13 +29,9 @@ public class UserAddRequest implements Serializable {
      */
     private String userAvatar;
 
-    /**
-     * 性别
-     */
-    private Integer gender;
 
     /**
-     * 用户角色: user, admin
+     * 用户角色：user/admin/vip/ban
      */
     private String userRole;
 
@@ -41,6 +39,26 @@ public class UserAddRequest implements Serializable {
      * 密码
      */
     private String userPassword;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 接口调用次数 默认有50次
+     */
+    private Integer callNum;
+
+    /**
+     * 到期时间
+     */
+    private Date expireTime;
+
+    /**
+     * vip类型
+     */
+    private String vipType;
 
     private static final long serialVersionUID = 1L;
 }
