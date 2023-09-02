@@ -7,7 +7,6 @@ import com.shaonian.project.common.BaseResponse;
 import com.shaonian.project.common.DeleteRequest;
 import com.shaonian.project.common.ErrorCode;
 import com.shaonian.project.common.ResultUtils;
-import com.shaonian.project.constant.CommonConstant;
 import com.shaonian.project.constant.UserConstant;
 import com.shaonian.project.exception.BusinessException;
 import com.shaonian.project.model.dto.chatmodel.ChatModelAddRequest;
@@ -17,10 +16,11 @@ import com.shaonian.project.model.entity.ChatModel;
 import com.shaonian.project.model.entity.User;
 import com.shaonian.project.service.ChatModelService;
 import com.shaonian.project.service.UserService;
+import com.shaonian.project.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +42,9 @@ public class ChatModelController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private FileUtil fileUtil;
+
     // region 增删改查
 
     /**
@@ -52,7 +55,12 @@ public class ChatModelController {
      * @return
      */
     @PostMapping("/add")
-    public BaseResponse<Long> addChatModel(@RequestBody ChatModelAddRequest chatModelAddRequest, HttpServletRequest request) {
+    public BaseResponse<Long> addChatModel(ChatModelAddRequest chatModelAddRequest, HttpServletRequest request, MultipartFile file) {
+        if(file==null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"图片不能为空");
+        }
+        //上传文件
+        fileUtil.upload(file);
         if (chatModelAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -61,6 +69,13 @@ public class ChatModelController {
         // 校验
         chatModelService.validChatModel(chatModel, true);
         User loginUser = userService.getLoginUser(request);
+
+        QueryWrapper<ChatModel> wrapper = new QueryWrapper();
+        wrapper.eq("name",chatModelAddRequest.getName());
+        ChatModel one = chatModelService.getOne(wrapper);
+        if(one != null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"模型名称已存在");
+        }
         chatModel.setUserId(loginUser.getId());
         boolean result = chatModelService.save(chatModel);
         if (!result) {
@@ -106,8 +121,11 @@ public class ChatModelController {
      * @return
      */
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateChatModel(@RequestBody ChatModelUpdateRequest chatModelUpdateRequest,
-                                            HttpServletRequest request) {
+    public BaseResponse<Boolean> updateChatModel(ChatModelUpdateRequest chatModelUpdateRequest, HttpServletRequest request,MultipartFile file) {
+        User user = userService.getLoginUser(request);
+        if(file!=null){
+            fileUtil.upload(file);
+        }
         if (chatModelUpdateRequest == null || chatModelUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -115,7 +133,6 @@ public class ChatModelController {
         BeanUtils.copyProperties(chatModelUpdateRequest, chatModel);
         // 参数校验
         chatModelService.validChatModel(chatModel, false);
-        User user = userService.getLoginUser(request);
         long id = chatModelUpdateRequest.getId();
         // 判断是否存在
         ChatModel oldChatModel = chatModelService.getById(id);
@@ -170,9 +187,8 @@ public class ChatModelController {
      * @param request
      * @return
      */
-    @GetMapping("/list/page")
-    public BaseResponse<Page<ChatModel>> listChatModelByPage(ChatModelQueryRequest chatModelQueryRequest, HttpServletRequest request) {
-        User loginUser = userService.getLoginUser(request);
+    @PostMapping("/list/page")
+    public BaseResponse<Page<ChatModel>> listChatModelByPage(@RequestBody ChatModelQueryRequest chatModelQueryRequest, HttpServletRequest request) {
         if (chatModelQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -180,21 +196,13 @@ public class ChatModelController {
         BeanUtils.copyProperties(chatModelQueryRequest, chatModelQuery);
         long current = chatModelQueryRequest.getCurrent();
         long size = chatModelQueryRequest.getPageSize();
-        String sortField = chatModelQueryRequest.getSortField();
-        String sortOrder = chatModelQueryRequest.getSortOrder();
         // content 需支持模糊搜索
         // 限制爬虫
         if (size > 50) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        QueryWrapper<ChatModel> queryWrapper = new QueryWrapper<>(chatModelQuery);
-        //普通用户不能查看未公开的模型
-        if(loginUser.getUserRole().equals("user")) {
-            queryWrapper.eq("isOpen",1);
-        }
-        queryWrapper.orderBy(StringUtils.isNotBlank(sortField),
-                sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
-        Page<ChatModel> chatModelPage = chatModelService.page(new Page<>(current, size), queryWrapper);
+        Page<ChatModel> chatModelPage = chatModelService.page(new Page<>(current, size),
+                chatModelService.getQueryWrapper(chatModelQueryRequest,request));
         return ResultUtils.success(chatModelPage);
     }
 

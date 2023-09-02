@@ -7,17 +7,28 @@
     <resultMap id="BaseResultMap" type="com.shaonian.project.model.entity.Comment">
             <id property="id" column="id" jdbcType="BIGINT"/>
             <result property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="partentId" column="partentId" jdbcType="BIGINT"/>
+            <result property="parentId" column="parentId" jdbcType="BIGINT"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
-            <result property="upvotes" column="upvotes" jdbcType="INTEGER"/>
+            <result property="upvote" column="upvote" jdbcType="INTEGER"/>
             <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userId,partentId,
-        content,upvotes,createTime,
+        id,userId,parentId,
+        content,upvote,createTime,
         updateTime,isDelete
     </sql>
+
+    <select id="pageCommentVO" resultType="com.shaonian.project.model.vo.CommentVO">
+        select comment.id,userAccount,content,upvote,comment.createTime createTime
+        from user,comment
+        where user.id=comment.userId
+        <if test="userAccount!=null&amp;&amp;userAccount!=''">
+            and userAccount=#{userAccount}
+        </if>
+        and comment.isDelete=0
+        order by comment.createTime desc
+    </select>
 </mapper>

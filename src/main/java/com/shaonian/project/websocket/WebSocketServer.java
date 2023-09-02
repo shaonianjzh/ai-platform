@@ -1,12 +1,23 @@
 package com.shaonian.project.websocket;
 
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.shaonian.project.common.ErrorCode;
+import com.shaonian.project.exception.BusinessException;
+import com.shaonian.project.mapper.UserMapper;
 import com.shaonian.project.model.entity.ChatModel;
+import com.shaonian.project.model.entity.User;
+import com.shaonian.project.model.entity.UserModel;
 import com.shaonian.project.model.enums.DomainEnum;
 import com.shaonian.project.service.ChatModelService;
-import com.shaonian.project.service.UserService;
+import com.shaonian.project.service.RedisLimiter;
+import com.shaonian.project.service.UserModelService;
 import com.unfbx.sparkdesk.SparkDeskClient;
 import com.unfbx.sparkdesk.entity.*;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +46,16 @@ public class WebSocketServer {
 
     private Session session;
 
+
+    /**
+     * 用户id
+     */
     private Long userId;
 
-    private Long chatModelId;
+    /**
+     * 模型id
+     */
+    private Long modelId;
 
 
     private static SparkDeskClient sparkDeskClient;
@@ -46,14 +64,21 @@ public class WebSocketServer {
 
     private static ChatModelService chatModelService;
 
-    private static UserService userService;
+    private static UserModelService userModelService;
+
+    private static RedisLimiter redisLimiter;
+
+    private static UserMapper userMapper;
+
 
     @Autowired
-    public void setService(SparkDeskClient sparkDeskClient, StringRedisTemplate stringRedisTemplate, ChatModelService chatModelService, UserService userService) {
+    public void setService(SparkDeskClient sparkDeskClient, StringRedisTemplate stringRedisTemplate, ChatModelService chatModelService, UserMapper userMapper,UserModelService userModelService,RedisLimiter redisLimiter) {
         WebSocketServer.sparkDeskClient = sparkDeskClient;
         WebSocketServer.stringRedisTemplate = stringRedisTemplate;
         WebSocketServer.chatModelService = chatModelService;
-        WebSocketServer.userService = userService;
+        WebSocketServer.userMapper = userMapper;
+        WebSocketServer.userModelService = userModelService;
+        WebSocketServer.redisLimiter = redisLimiter;
     }
 
     /**
@@ -68,10 +93,11 @@ public class WebSocketServer {
      * @param userId
      */
     @OnOpen
+    @SneakyThrows
     public void onOpen(Session session, @PathParam("userId") Long userId,@PathParam("chatModelId") Long chatModelId) {
         this.session = session;
         this.userId = userId;
-        this.chatModelId = chatModelId;
+        this.modelId = chatModelId;
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
             webSocketMap.put(userId, this);
@@ -100,9 +126,10 @@ public class WebSocketServer {
      * @param error
      */
     @OnError
+    @SneakyThrows
     public void onError(Session session, Throwable error) {
         log.info("[连接ID:{}] 错误原因:{}", this.userId, error.getMessage());
-        error.printStackTrace();
+        session.getBasicRemote().sendText(error.getMessage());
     }
 
     /**
@@ -110,38 +137,101 @@ public class WebSocketServer {
      * @param msg
      */
     @OnMessage
+    @SneakyThrows
+//    @Transactional(rollbackFor = Exception.class)
     public void onMessage(String msg) {
         log.info("[连接ID:{}] 收到消息:{}", this.userId, msg);
-        //TODO 限流
-        // TODO 校验用户的合法性，是否有调用次数
+        //校验用户的合法性，是否有调用次数
+        User user = validateUser(this.userId);
+        //限流
+        redisLimiter.doRateLimit(String.valueOf(userId));
+
         //TODO 消息队列异步处理,优化
 
         //根据chatModelId获取模型预设
-        ChatModel chatModel = chatModelService.getById(chatModelId);
+        ChatModel chatModel = chatModelService.getById(modelId);
         String prompt = chatModel.getPrompt();
 
         //从缓存中获取最近的聊天记录
         List<Text> textList = new ArrayList<>();
-        //查询redis缓存最近15条的历史消息
-        String messagesContext = stringRedisTemplate.opsForValue().get(userId+":"+chatModelId);
+        //本地缓存
+        //String messagesContext = (String) LocalCache.CACHE.get(userId + ":" + modelId);
+        //查询redis缓存历史对话记录
+        String messagesContext = stringRedisTemplate.opsForValue().get(userId+":"+modelId);
+        log.info("发送的数据：{}",messagesContext);
         if(StringUtils.isNotBlank(messagesContext)){
             textList = JSONUtil.toList(messagesContext, Text.class);
-            if (textList.size() >= 10) {
-                textList = textList.subList(1, 10);
+            if (textList.size() >= 5) {
+                textList = textList.subList(0, 5);
+                System.out.println(textList);
             }
         }else{
             textList.add(Text.builder().role(Text.Role.USER.getName()).content(prompt).build());
         }
         textList.add(Text.builder().role(Text.Role.USER.getName()).content(msg).build());
+
+        //生成用户每次的对话id
+        long userModelId = IdUtil.getSnowflakeNextId();
+
         //调用AI接口
-        sparkDeskClient.chat(new XFChatListener(getAIChatRequest(this.userId.toString(), 0.3, textList),session,chatModelId));
+        sparkDeskClient.chat(new XFChatListener(getAIChatRequest(this.userId.toString(), 0.3, textList),session,userModelId));
 
-        //存入缓存中对话记录  重新设置过期时间为三天
-        stringRedisTemplate.opsForValue().set(userId+":"+chatModelId,JSONUtil.toJsonStr(textList));
+        //将每次的对话信息存入数据库
+        UserModel userModel = new UserModel();
+        userModel.setId(userModelId)
+                .setUserId(userId).setModelId(modelId)
+                .setChatData(msg).setStatus("running");
+        userModelService.save(userModel);
+
+
+        //从数据库中查询最近5次对话记录更新缓存
+        QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userId",userId);
+        queryWrapper.eq("modelId",modelId);
+        queryWrapper.orderByDesc("createTime");
+        List<UserModel> userModels = userModelService.page(new Page<>(1, 5), queryWrapper).getRecords();
+        List<Text> historyText = getTextList(userModels);
+        if(CollectionUtil.isNotEmpty(historyText)){
+            historyText.set(0,Text.builder().role(Text.Role.USER.getName()).content(prompt).build());
+        }
+
+        //缓存最近10条对话记录  重新设置过期时间为三天
+        stringRedisTemplate.opsForValue().set(userId+":"+modelId,JSONUtil.toJsonStr(historyText));
         stringRedisTemplate.expire(String.valueOf(userId),3, TimeUnit.DAYS);
-
+        //本地缓存
+        //LocalCache.CACHE.put(userId+":"+modelId,JSONUtil.toJsonStr(historyText));
     }
 
+
+    /**
+     * 根据用户对话记录拼接 Text
+     * @param userModels
+     * @return
+     */
+    private List<Text> getTextList(List<UserModel> userModels){
+        List<Text> textList = new ArrayList<>();
+        for(UserModel userModel:userModels){
+            textList.add(Text.builder().role(Text.Role.USER.getName()).content(userModel.getChatData()).build());
+            textList.add(Text.builder().role(Text.Role.ASSISTANT.getName()).content(userModel.getGenResult()).build());
+        }
+        return textList;
+    }
+
+
+    /**
+     * 校验用户合法性
+     * @param userId
+     */
+    private User validateUser(Long userId){
+        User user = userMapper.selectById(this.userId);
+        if(user==null){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"不是本平台用户，禁止访问");
+        }
+        if(user.getCallNum()<=0){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"调用次数不够，请充值");
+        }
+        return user;
+    }
 
     /**
      * 获取当前连接数
@@ -156,6 +246,9 @@ public class WebSocketServer {
      * 当前连接数加一
      */
     public static synchronized void addOnlineCount() {
+        if(onlineCount>50){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"当前在线人数过多，请稍后访问");
+        }
         WebSocketServer.onlineCount++;
     }
 

@@ -1,7 +1,11 @@
 package com.shaonian.project.service;
 
-import com.shaonian.project.model.entity.ChatModel;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.shaonian.project.model.dto.chatmodel.ChatModelQueryRequest;
+import com.shaonian.project.model.entity.ChatModel;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author 少年
@@ -11,4 +15,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ChatModelService extends IService<ChatModel> {
 
     void validChatModel(ChatModel chatModel, boolean b);
+
+    /**
+     * 获取查询条件
+     * @param chatModelQueryRequest
+     * @return
+     */
+    QueryWrapper<ChatModel> getQueryWrapper(ChatModelQueryRequest chatModelQueryRequest, HttpServletRequest request);
 }

@@ -2,6 +2,7 @@ package com.shaonian.project.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,11 +13,11 @@ import java.util.Date;
  */
 @TableName(value ="user_model")
 @Data
+@Accessors(chain = true)
 public class UserModel implements Serializable {
     /**
-     * 
+     * id
      */
-    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**

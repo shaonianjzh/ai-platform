@@ -23,4 +23,17 @@
         execMessage,createTime,updateTime,
         isDelete
     </sql>
+    <select id="pageUserModelVO" parameterType="com.shaonian.project.model.dto.usermodel.UserModelQueryRequest" resultType="com.shaonian.project.model.vo.UserModelVO">
+        select user_model.id id,name modelName,userAccount,chatData,genResult,status,execMessage,user_model.createTime createTime from user_model,user,chat_model
+        where user_model.userId=user.id
+        and user_model.modelId=chat_model.id
+        <if test="request.modelName!=null&amp;&amp;request.modelName!=''">
+            and chat_model.name=#{request.modelName}
+        </if>
+        <if test="request.userAccount!=null&amp;&amp;request.userAccount!=''">
+            and userAccount=#{request.userAccount}
+        </if>
+            and user_model.isDelete=0
+        order by user_model.createTime desc
+    </select>
 </mapper>

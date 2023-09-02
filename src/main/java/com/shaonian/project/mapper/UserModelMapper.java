@@ -1,7 +1,13 @@
 package com.shaonian.project.mapper;
 
-import com.shaonian.project.model.entity.UserModel;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.shaonian.project.model.dto.usermodel.UserModelQueryRequest;
+import com.shaonian.project.model.entity.UserModel;
+import com.shaonian.project.model.vo.UserModelVO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author 少年
@@ -11,6 +17,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface UserModelMapper extends BaseMapper<UserModel> {
 
+
+    /**
+     * 分页获取用户调用记录
+     * @param page
+     * @param userModelQueryRequest
+     * @return
+     */
+    List<UserModelVO> pageUserModelVO(Page<UserModelVO> page,@Param("request") UserModelQueryRequest userModelQueryRequest);
 }
 
 

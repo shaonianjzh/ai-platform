@@ -1,7 +1,10 @@
 package com.shaonian.project.service;
 
-import com.shaonian.project.model.entity.UserModel;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.shaonian.project.model.dto.usermodel.UserModelQueryRequest;
+import com.shaonian.project.model.entity.UserModel;
+import com.shaonian.project.model.vo.UserModelVO;
 
 /**
 * @author 少年
@@ -10,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserModelService extends IService<UserModel> {
 
+    Page<UserModelVO> pageUserModelVO(Page<UserModelVO> page, UserModelQueryRequest userModelQueryRequest);
 }

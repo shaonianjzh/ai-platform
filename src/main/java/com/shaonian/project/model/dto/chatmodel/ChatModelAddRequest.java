@@ -33,6 +33,11 @@ public class ChatModelAddRequest implements Serializable {
      */
     private Integer categoryId;
 
+    /**
+     * 是否公开
+     */
+    private Integer isOpen;
+
 
     private static final long serialVersionUID = 1L;
 }

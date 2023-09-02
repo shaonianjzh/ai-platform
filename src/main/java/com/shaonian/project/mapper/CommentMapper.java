@@ -1,7 +1,12 @@
 package com.shaonian.project.mapper;
 
-import com.shaonian.project.model.entity.Comment;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.shaonian.project.model.entity.Comment;
+import com.shaonian.project.model.vo.CommentVO;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
 * @author 少年
@@ -11,6 +16,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface CommentMapper extends BaseMapper<Comment> {
 
+
+    /**
+     * 分页获取评论信息
+     * @param page
+     * @param userAccount
+     * @return
+     */
+    List<CommentVO> pageCommentVO(Page<CommentVO> page, @Param("userAccount") String  userAccount);
 }
 
 

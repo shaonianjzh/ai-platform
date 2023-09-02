@@ -27,7 +27,7 @@ public class Comment implements Serializable {
     /**
      * 父级评论id
      */
-    private Long partentId;
+    private Long parentId;
 
     /**
      * 评论内容
@@ -37,7 +37,7 @@ public class Comment implements Serializable {
     /**
      * 点赞数量
      */
-    private Integer upvotes;
+    private Integer upvote;
 
     /**
      * 
