@@ -1,5 +1,6 @@
 package com.shaonian.project.controller;
 
+import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shaonian.project.annotation.AuthCheck;
@@ -13,7 +14,9 @@ import com.shaonian.project.exception.BusinessException;
 import com.shaonian.project.exception.ThrowUtil;
 import com.shaonian.project.model.dto.user.*;
 import com.shaonian.project.model.entity.User;
+import com.shaonian.project.model.entity.UserCollect;
 import com.shaonian.project.model.vo.UserVO;
+import com.shaonian.project.service.UserCollectService;
 import com.shaonian.project.service.UserService;
 import com.shaonian.project.util.ValidateUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +40,42 @@ public class UserController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private UserCollectService userCollectService;
+
     // region 登录相关
+
+    /**
+     * 每日领取次数
+     * @return
+     */
+    @GetMapping("/getCallNum")
+    public BaseResponse getCallNum(HttpServletRequest request){
+        User loginUser = userService.getLoginUser(request);
+        String userRole = loginUser.getUserRole();
+
+        //判断今天是否领取
+        QueryWrapper<UserCollect> wrapper = new QueryWrapper<>();
+        String date = DateUtil.today();
+        wrapper.eq("userId",loginUser.getId());
+        wrapper.eq("collectTime",DateUtil.parse(date, "yyyy-MM-dd"));
+        UserCollect one = userCollectService.getOne(wrapper);
+        if(one!=null){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"你今天已经领取了哦");
+        }
+
+        if(userRole.equals(UserConstant.VIP_USER)){
+            loginUser.setCallNum(loginUser.getCallNum()+50);
+        } else if(userRole.equals(UserConstant.DEFAULT_ROLE)){
+            loginUser.setCallNum(loginUser.getCallNum()+20);
+        }
+        UserCollect userCollect = new UserCollect();
+        userCollect.setUserId(loginUser.getId());
+        userCollect.setCollectTime(DateUtil.date());
+        userCollectService.save(userCollect);
+        userService.updateById(loginUser);
+        return ResultUtils.success();
+    }
 
     /**
      * 给邮箱发送验证码
