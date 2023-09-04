@@ -60,7 +60,7 @@ public class ChatModelController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"图片不能为空");
         }
         //上传文件
-        fileUtil.upload(file);
+        String imgUrl = fileUtil.upload(file);
         if (chatModelAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -77,6 +77,7 @@ public class ChatModelController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"模型名称已存在");
         }
         chatModel.setUserId(loginUser.getId());
+        chatModel.setImg(imgUrl);
         boolean result = chatModelService.save(chatModel);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
@@ -123,13 +124,15 @@ public class ChatModelController {
     @PostMapping("/update")
     public BaseResponse<Boolean> updateChatModel(ChatModelUpdateRequest chatModelUpdateRequest, HttpServletRequest request,MultipartFile file) {
         User user = userService.getLoginUser(request);
+        String imgUrl = null;
+        ChatModel chatModel = new ChatModel();
         if(file!=null){
-            fileUtil.upload(file);
+            imgUrl = fileUtil.upload(file);
+            chatModel.setImg(imgUrl);
         }
         if (chatModelUpdateRequest == null || chatModelUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        ChatModel chatModel = new ChatModel();
         BeanUtils.copyProperties(chatModelUpdateRequest, chatModel);
         // 参数校验
         chatModelService.validChatModel(chatModel, false);

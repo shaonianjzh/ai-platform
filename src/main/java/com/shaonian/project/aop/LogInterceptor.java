@@ -1,9 +1,5 @@
 package com.shaonian.project.aop;
 
-import com.shaonian.project.common.ErrorCode;
-import com.shaonian.project.exception.BusinessException;
-import com.shaonian.project.model.entity.User;
-import com.shaonian.project.model.enums.UserRoleEnum;
 import com.shaonian.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,10 +56,10 @@ public class LogInterceptor {
         log.info("request end, id: {}, cost: {}ms", requestId, totalTimeMillis);
 
         //如果用户被封号，禁止访问
-        User loginUser = userService.getLoginUserPermitNull(httpServletRequest);
-        if(loginUser!=null&&UserRoleEnum.BAN.getValue().equals(loginUser.getUserRole())){
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"您已被封号");
-        }
+//        User loginUser = userService.getLoginUserPermitNull(httpServletRequest);
+//        if(loginUser!=null&&UserRoleEnum.BAN.getValue().equals(loginUser.getUserRole())){
+//            throw new BusinessException(ErrorCode.NO_AUTH_ERROR,"您已被封号");
+//        }
         return result;
     }
 }

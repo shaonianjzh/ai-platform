@@ -22,11 +22,12 @@ public class FileUtil {
     @Value("${img.url")
     private String url;
 
-    public void upload(MultipartFile file){
+    public String upload(MultipartFile file){
         try {
             file.transferTo(new File(src+file.getOriginalFilename()));
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"图片上传失败");
         }
+        return url+file.getOriginalFilename();
     }
 }

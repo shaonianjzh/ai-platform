@@ -1,6 +1,7 @@
 package com.shaonian.project.websocket;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -171,7 +172,8 @@ public class WebSocketServer {
         textList.add(Text.builder().role(Text.Role.USER.getName()).content(msg).build());
 
         //生成用户每次的对话id
-        long userModelId = IdUtil.getSnowflakeNextId();
+        Snowflake snowflake = IdUtil.getSnowflake(1,1);
+        long userModelId = snowflake.nextId();
 
         //调用AI接口
         sparkDeskClient.chat(new XFChatListener(getAIChatRequest(this.userId.toString(), 0.3, textList),session,userModelId));

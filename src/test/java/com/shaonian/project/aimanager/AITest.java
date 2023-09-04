@@ -1,7 +1,6 @@
 package com.shaonian.project.aimanager;
 
 
-import cn.hutool.core.util.IdUtil;
 import com.shaonian.project.config.XFAIConfig;
 import com.unfbx.chatgpt.OpenAiStreamClient;
 import com.unfbx.chatgpt.entity.chat.ChatCompletion;
@@ -54,11 +53,5 @@ public class AITest {
             e.printStackTrace();
         }
     }
-    @Test
-    void test3(){
-        long snowflakeNextId = IdUtil.getSnowflakeNextId();
-        System.out.println(snowflakeNextId);
-    }
-
 }
 

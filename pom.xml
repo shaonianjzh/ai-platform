@@ -102,10 +102,11 @@
             <scope>test</scope>
         </dependency>
         <!--https://github.com/justauth/JustAuth-->
+        <!--集成三方登录-->
         <dependency>
-            <groupId>me.zhyd.oauth</groupId>
-            <artifactId>JustAuth</artifactId>
-            <version>1.16.5</version>
+            <groupId>com.xkcoding.justauth</groupId>
+            <artifactId>justauth-spring-boot-starter</artifactId>
+            <version>1.4.0</version>
         </dependency>
         <!-- 发送邮件-->
         <dependency>
@@ -133,6 +134,12 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <!--支付宝支付-->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.19.10.ALL</version>
         </dependency>
     </dependencies>
 

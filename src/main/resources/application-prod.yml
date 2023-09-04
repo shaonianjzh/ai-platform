@@ -22,9 +22,23 @@ spring:
     username: #用户名
     password: #密码
 
+#集成第三方登录
+#参考 https://www.justauth.cn/
+justauth:
+  enabled: true
+  type:
+    GITEE:
+      client-id:
+      client-secret:
+      redirect-uri:
+  cache:
+    type: default
 #讯飞AI 配置
 ai:
   xunfei:
     appId:
     apiKey:
     apiSecret:
+img:
+  src: C:\Users\少年\Desktop\image\
+  url: https://localhost/image/

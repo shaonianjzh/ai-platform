@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shaonian.project.mapper.PayOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.shaonian.project.model.entity.PayOrder">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="tradeId" column="tradeId" jdbcType="VARCHAR"/>
+            <result property="userId" column="userId" jdbcType="BIGINT"/>
+            <result property="type" column="type" jdbcType="VARCHAR"/>
+            <result property="payMoney" column="payMoney" jdbcType="DECIMAL"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+            <result property="endTime" column="endTime" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,tradeId,userId,
+        type,payMoney,status,
+        createTime,endTime,updateTime,
+        isDelete
+    </sql>
+    <select id="pagePayOrderVO" resultType="com.shaonian.project.model.vo.PayOrderVO">
+        select pay_order.id,userAccount,payMoney,status,tradeId,type,pay_order.createTime createTime,
+        pay_order.endTime
+        from user,pay_order
+        where user.id=pay_order.userId
+        <if test="userAccount!=null&amp;&amp;userAccount!=''">
+            and userAccount=#{userAccount}
+        </if>
+        and pay_order.isDelete=0
+        order by pay_order.createTime desc
+    </select>
+</mapper>
