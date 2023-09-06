@@ -21,5 +21,15 @@ public class UserModelQueryRequest extends PageRequest implements Serializable {
      */
     private String userAccount;
 
+    /**
+     * 模型id
+     */
+    private Long modelId;
+
+    /**
+     * 用户id
+     */
+    private Long userId;
+
     private static final long serialVersionUID = 1L;
 }

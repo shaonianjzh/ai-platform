@@ -18,11 +18,13 @@ import com.shaonian.project.model.entity.UserCollect;
 import com.shaonian.project.model.vo.UserVO;
 import com.shaonian.project.service.UserCollectService;
 import com.shaonian.project.service.UserService;
+import com.shaonian.project.util.FileUtil;
 import com.shaonian.project.util.ValidateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +44,9 @@ public class UserController {
 
     @Resource
     private UserCollectService userCollectService;
+
+    @Resource
+    private FileUtil fileUtil;
 
     // region 登录相关
 
@@ -215,13 +220,18 @@ public class UserController {
      */
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @PostMapping("/update")
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+    public BaseResponse<Boolean> updateUser(UserUpdateRequest userUpdateRequest, HttpServletRequest request, MultipartFile file) {
+        String imgUrl = null;
+        User user = new User();
+        if(file!=null){
+            imgUrl = fileUtil.upload(file);
+            user.setUserAvatar(imgUrl);
+        }
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         String userPassword = userUpdateRequest.getUserPassword();
 
-        User user = new User();
         user.setUserPassword(DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes()));
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);

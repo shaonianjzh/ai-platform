@@ -1,6 +1,5 @@
 package com.shaonian.project.websocket;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.shaonian.project.model.entity.User;
 import com.shaonian.project.model.entity.UserModel;
@@ -17,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.websocket.Session;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 少年
@@ -77,9 +75,9 @@ public class XFChatListener extends ChatListener {
         log.info("AI返回的数据 content:{}",aiChatResponse);
         List<Text> text = aiChatResponse.getPayload().getChoices().getText();
         //发送给前端
-        session.getBasicRemote().sendText(JSONUtil.toJsonStr(text));
+        session.getBasicRemote().sendText(text.get(0).getContent());
         //收集AI返回的结果
-        str.append(text.stream().map(Text::getContent).collect(Collectors.toList()));
+        str.append(text.get(0).getContent());
 
     }
 

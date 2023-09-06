@@ -10,9 +10,12 @@ import com.shaonian.project.constant.UserConstant;
 import com.shaonian.project.exception.BusinessException;
 import com.shaonian.project.exception.ThrowUtil;
 import com.shaonian.project.model.dto.comment.CommentQueryRequest;
+import com.shaonian.project.model.entity.Comment;
+import com.shaonian.project.model.entity.User;
 import com.shaonian.project.model.vo.CommentVO;
 import com.shaonian.project.service.CommentService;
 import com.shaonian.project.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -69,5 +72,23 @@ public class CommentController {
 
         Page<CommentVO> commentVOPage = commentService.pageCommentVO(new Page<>(current,size),commentQueryRequest);
         return ResultUtils.success(commentVOPage);
+    }
+
+
+    @PostMapping("/add")
+    public BaseResponse addComment(String content,HttpServletRequest request){
+        if(StringUtils.isBlank(content)){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"反馈内容不能为空");
+        }
+        User loginUser = userService.getLoginUser(request);
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        comment.setUserId(loginUser.getId());
+        boolean save = commentService.save(comment);
+        if(!save){
+            throw new BusinessException(ErrorCode.OPERATION_ERROR);
+        }
+        return ResultUtils.success();
     }
 }

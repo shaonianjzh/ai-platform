@@ -31,6 +31,11 @@ public class ChatModel implements Serializable {
     private String name;
 
     /**
+     * 模型描述
+     */
+    private String description;
+
+    /**
      * 模型预设(提示语)
      */
     private String prompt;

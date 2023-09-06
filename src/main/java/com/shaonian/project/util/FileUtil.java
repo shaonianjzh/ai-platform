@@ -19,7 +19,7 @@ public class FileUtil {
     @Value("${img.src}")
     private String src;
 
-    @Value("${img.url")
+    @Value("${img.url}")
     private String url;
 
     public String upload(MultipartFile file){

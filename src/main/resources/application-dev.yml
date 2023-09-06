@@ -42,3 +42,13 @@ ai:
 img:
   src: C:\Users\少年\Desktop\image\
   url: https://localhost/image/
+#支付宝沙箱支付配置
+alipay:
+  appId: #appid
+  privateKey: #私钥
+  publicKey: #公钥
+  signType: RSA2
+  chatset: utf-8
+  gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+  returnUrl: #同步回调地址
+  notifyUrl: #异步回调地址

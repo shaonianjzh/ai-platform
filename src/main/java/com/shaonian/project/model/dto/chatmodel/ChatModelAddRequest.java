@@ -19,14 +19,20 @@ public class ChatModelAddRequest implements Serializable {
     private String name;
 
     /**
+     * 模型描述
+     */
+    private String description;
+
+    /**
      * 模型预设(提示语)
      */
     private String prompt;
 
     /**
-     * 图标路径
+     * 随机值
+     *
      */
-    private String img;
+    private Double random;
 
     /**
      * 分类

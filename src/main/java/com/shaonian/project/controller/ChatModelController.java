@@ -59,7 +59,7 @@ public class ChatModelController {
         if(file==null){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"图片不能为空");
         }
-        //上传文件
+//        上传文件
         String imgUrl = fileUtil.upload(file);
         if (chatModelAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -77,7 +77,7 @@ public class ChatModelController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"模型名称已存在");
         }
         chatModel.setUserId(loginUser.getId());
-        chatModel.setImg(imgUrl);
+//        chatModel.setImg(imgUrl);
         boolean result = chatModelService.save(chatModel);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);
@@ -171,15 +171,13 @@ public class ChatModelController {
      * @param chatModelQueryRequest
      * @return
      */
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @GetMapping("/list")
-    public BaseResponse<List<ChatModel>> listChatModel(ChatModelQueryRequest chatModelQueryRequest) {
-        ChatModel chatModelQuery = new ChatModel();
-        if (chatModelQueryRequest != null) {
-            BeanUtils.copyProperties(chatModelQueryRequest, chatModelQuery);
+    @PostMapping("/list")
+    public BaseResponse<List<ChatModel>> listChatModel(@RequestBody ChatModelQueryRequest chatModelQueryRequest,HttpServletRequest request) {
+        if (chatModelQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        QueryWrapper<ChatModel> queryWrapper = new QueryWrapper<>(chatModelQuery);
-        List<ChatModel> chatModelList = chatModelService.list(queryWrapper);
+        List<ChatModel> chatModelList = chatModelService
+                .list(chatModelService.getQueryWrapper(chatModelQueryRequest,request));
         return ResultUtils.success(chatModelList);
     }
 

@@ -1,16 +1,15 @@
 package com.shaonian.project.controller;
 
 import com.alipay.api.AlipayApiException;
+import com.shaonian.project.common.BaseResponse;
 import com.shaonian.project.common.ErrorCode;
+import com.shaonian.project.common.ResultUtils;
 import com.shaonian.project.exception.BusinessException;
 import com.shaonian.project.model.dto.pay.PayRequest;
 import com.shaonian.project.model.enums.RechargeTypeEnum;
 import com.shaonian.project.service.AlipayService;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +35,8 @@ public class PayController {
      * @throws IOException
      */
 
-    @GetMapping("/alipay")
-    public void alipay(PayRequest payRequest,HttpServletRequest request, HttpServletResponse response) throws AlipayApiException, IOException {
+    @PostMapping("/alipay")
+    public BaseResponse<String> alipay(@RequestBody PayRequest payRequest, HttpServletRequest request, HttpServletResponse response) throws AlipayApiException, IOException {
         String type = payRequest.getType();
         if(StringUtils.isBlank(type)){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"充值类型错误");
@@ -47,12 +46,7 @@ public class PayController {
             throw  new BusinessException(ErrorCode.PARAMS_ERROR,"充值金额错误");
         }
         String form = alipayService.pay(payRequest,request);
-        response.setContentType("text/html;charset=utf-8");
-        // 直接将完整的表单html输出到页面
-        response.getWriter().write(form);
-        response.getWriter().flush();
-        response.getWriter().close();
-//        response.sendRedirect(form);
+        return ResultUtils.success(form);
     }
 
     /**
@@ -76,7 +70,7 @@ public class PayController {
     public void syncNotify(HttpServletRequest request,HttpServletResponse response) throws AlipayApiException, IOException {
         //校验成功，返回商户
         if(alipayService.syncNotify(request)){
-            response.sendRedirect("http://localhost:7529/api/doc.html");
+            response.sendRedirect("http://localhost:9529/#/personal/index");
         }
     }
 
