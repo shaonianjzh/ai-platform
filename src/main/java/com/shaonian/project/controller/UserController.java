@@ -112,7 +112,7 @@ public class UserController {
         String email = userRegisterRequest.getEmail();
         String code = userRegisterRequest.getCode();
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword, email, code)) {
-            return null;
+            return ResultUtils.error(ErrorCode.PARAMS_ERROR,"参数不能为空");
         }
         long result = userService.userRegister(userAccount, userPassword, checkPassword, email, code);
         return ResultUtils.success(result);
@@ -235,6 +235,34 @@ public class UserController {
         user.setUserPassword(DigestUtils.md5DigestAsHex((CommonConstant.SALT + userPassword).getBytes()));
         BeanUtils.copyProperties(userUpdateRequest, user);
         boolean result = userService.updateById(user);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 用户更新自己信息
+     *
+     * @param userUpdate
+     * @param request
+     * @return
+     */
+    @PostMapping("/updateUser")
+    public BaseResponse<Boolean> updateUser(UserUpdate userUpdate, HttpServletRequest request, MultipartFile file) {
+        User loginUser = userService.getLoginUser(request);
+        String imgUrl = null;
+        if(file!=null){
+            imgUrl = fileUtil.upload(file);
+            loginUser.setUserAvatar(imgUrl);
+        }
+        if (userUpdate == null || userUpdate.getId() == null || StringUtils.isBlank(userUpdate.getUserName())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        if(!loginUser.getId().equals(userUpdate.getId())){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"只允许修改自己的信息");
+        }
+        loginUser.setUserAvatar(imgUrl);
+        loginUser.setUserName(userUpdate.getUserName());
+
+        boolean result = userService.updateById(loginUser);
         return ResultUtils.success(result);
     }
 

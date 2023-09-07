@@ -149,6 +149,7 @@
     </dependencies>
 
     <build>
+        <finalName>ai-platform</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -70,7 +70,7 @@ public class PayController {
     public void syncNotify(HttpServletRequest request,HttpServletResponse response) throws AlipayApiException, IOException {
         //校验成功，返回商户
         if(alipayService.syncNotify(request)){
-            response.sendRedirect("http://localhost:9529/#/personal/index");
+            response.sendRedirect("http://ai.iamshaonian.top/#/personal/index");
         }
     }
 

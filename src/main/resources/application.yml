@@ -2,7 +2,7 @@ spring:
   application:
     name: ai-platform
   profiles:
-    active: test
+    active: online
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER

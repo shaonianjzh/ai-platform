@@ -77,7 +77,7 @@ public class ChatModelController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"模型名称已存在");
         }
         chatModel.setUserId(loginUser.getId());
-//        chatModel.setImg(imgUrl);
+        chatModel.setImg(imgUrl);
         boolean result = chatModelService.save(chatModel);
         if (!result) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR);

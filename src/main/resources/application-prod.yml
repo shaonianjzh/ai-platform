@@ -15,6 +15,18 @@ spring:
     host: #发送邮件服务器
     password: #密码
     username: #你的邮箱
+    protocol: smtp
+      properties:
+        mail:
+          smtp:
+            auth: true
+            socketFactory:
+              port: 465
+              class: javax.net.ssl.SSLSocketFactory
+              fallback: false
+            starttls:
+              enable: true
+              required: true
 
   rabbitmq:
     host: #你的地址

@@ -197,7 +197,7 @@ public class WebSocketServer {
         queryWrapper.eq("modelId", modelId);
         queryWrapper.isNotNull("genResult");
         queryWrapper.orderByDesc("createTime");
-        List<UserModel> userModels = userModelService.page(new Page<>(1, 5), queryWrapper).getRecords();
+        List<UserModel> userModels = userModelService.page(new Page<>(1, 10), queryWrapper).getRecords();
         List<Text> historyText = getTextList(userModels);
         if (!CollectionUtils.isEmpty(historyText)) {
             historyText.set(0, Text.builder().role(Text.Role.USER.getName()).content(prompt).build());
@@ -220,9 +220,10 @@ public class WebSocketServer {
      */
     private List<Text> getTextList(List<UserModel> userModels) {
         List<Text> textList = new ArrayList<>();
-        for (UserModel userModel : userModels) {
-            textList.add(Text.builder().role(Text.Role.USER.getName()).content(userModel.getChatData()).build());
-            textList.add(Text.builder().role(Text.Role.ASSISTANT.getName()).content(userModel.getGenResult()).build());
+        int size = userModels.size();
+        for(int i=size-1;i>=0;i--){
+            textList.add(Text.builder().role(Text.Role.USER.getName()).content(userModels.get(i).getChatData()).build());
+            textList.add(Text.builder().role(Text.Role.ASSISTANT.getName()).content(userModels.get(i).getGenResult()).build());
         }
         return textList;
     }
