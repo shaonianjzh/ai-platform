@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.shaonian.project.model.dto.usermodel.UserModelQueryRequest;
 import com.shaonian.project.model.entity.UserModel;
+import com.shaonian.project.model.vo.UserChatVO;
 import com.shaonian.project.model.vo.UserModelVO;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,6 +26,12 @@ public interface UserModelMapper extends BaseMapper<UserModel> {
      * @return
      */
     List<UserModelVO> pageUserModelVO(Page<UserModelVO> page,@Param("request") UserModelQueryRequest userModelQueryRequest);
+
+    /**
+     * 获取模型及对应的调用数量
+     * @return
+     */
+    List<UserChatVO> getModelCount();
 }
 
 

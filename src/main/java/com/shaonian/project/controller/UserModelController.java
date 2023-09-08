@@ -141,7 +141,7 @@ public class UserModelController {
      * @return
      */
     @GetMapping("/wordCount")
-    public BaseResponse wordCount(){
+    public BaseResponse<List<UserChatVO>> wordCount(){
         //根据用户对话聚合
         TermsAggregationBuilder chatDataAgg = AggregationBuilders.terms("chatDataAgg")
                 .field("chatData")
@@ -160,5 +160,14 @@ public class UserModelController {
             return new UserChatVO(keyAsString, docCount);
         }).collect(Collectors.toList());
         return ResultUtils.success(collect);
+    }
+
+    /**
+     * 模型调用统计
+     * @return
+     */
+    @GetMapping("/modelCount")
+    public BaseResponse<List<UserChatVO>> modelCount(){
+        return ResultUtils.success(userModelService.getModelCount());
     }
 }

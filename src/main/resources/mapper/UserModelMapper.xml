@@ -36,4 +36,8 @@
             and user_model.isDelete=0
         order by user_model.createTime desc
     </select>
+    <select id="getModelCount" resultType="com.shaonian.project.model.vo.UserChatVO">
+        select `name`,count(*) value
+        from user_model,chat_model where user_model.modelId=chat_model.id  GROUP BY modelId ORDER BY value desc
+    </select>
 </mapper>

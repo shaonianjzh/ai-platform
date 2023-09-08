@@ -5,11 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.shaonian.project.mapper.UserModelMapper;
 import com.shaonian.project.model.dto.usermodel.UserModelQueryRequest;
 import com.shaonian.project.model.entity.UserModel;
+import com.shaonian.project.model.vo.UserChatVO;
 import com.shaonian.project.model.vo.UserModelVO;
 import com.shaonian.project.service.UserModelService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
 * @author 少年
@@ -26,6 +28,11 @@ public class UserModelServiceImpl extends ServiceImpl<UserModelMapper, UserModel
     @Override
     public Page<UserModelVO> pageUserModelVO(Page<UserModelVO> page, UserModelQueryRequest userModelQueryRequest) {
         return page.setRecords(userModelMapper.pageUserModelVO(page,userModelQueryRequest));
+    }
+
+    @Override
+    public List<UserChatVO> getModelCount() {
+        return userModelMapper.getModelCount();
     }
 }
 
