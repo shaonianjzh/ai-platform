@@ -33,6 +33,10 @@ spring:
     port: 5672
     username: #用户名
     password: #密码
+  elasticsearch:
+    uris: http://localhost:9200
+    username: #账号
+    password: #密码
 #集成第三方登录
 #参考 https://www.justauth.cn/
 justauth:

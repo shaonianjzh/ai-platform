@@ -12,13 +12,20 @@ import com.shaonian.project.exception.BusinessException;
 import com.shaonian.project.model.dto.usermodel.UserModelQueryRequest;
 import com.shaonian.project.model.entity.User;
 import com.shaonian.project.model.entity.UserModel;
+import com.shaonian.project.model.es.UserChat;
+import com.shaonian.project.model.vo.UserChatVO;
 import com.shaonian.project.model.vo.UserModelVO;
 import com.shaonian.project.service.UserModelService;
 import com.shaonian.project.service.UserService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +46,8 @@ public class UserModelController {
     @Resource
     private UserService userService;
 
+    @Resource
+    private ElasticsearchRestTemplate elasticsearchRestTemplate;
 
     /**
      * 删除
@@ -117,6 +126,7 @@ public class UserModelController {
         }
         queryWrapper.eq("userId", userId);
         queryWrapper.eq("modelId", modelId);
+        queryWrapper.isNotNull("genResult");
         queryWrapper.orderByDesc("createTime");
         Page<UserModel> userModelVoPage = userModelService.page(new Page<>(current, pageSize), queryWrapper);
         List<UserModel> collect = userModelVoPage.getRecords()
@@ -124,5 +134,31 @@ public class UserModelController {
                 .sorted(Comparator.comparing(UserModel::getCreateTime)).collect(Collectors.toList());
         userModelVoPage.setRecords(collect);
         return ResultUtils.success(userModelVoPage);
+    }
+
+    /**
+     * 词频统计
+     * @return
+     */
+    @GetMapping("/wordCount")
+    public BaseResponse wordCount(){
+        //根据用户对话聚合
+        TermsAggregationBuilder chatDataAgg = AggregationBuilders.terms("chatDataAgg")
+                .field("chatData")
+                .size(2000);
+        NativeSearchQuery build = new NativeSearchQueryBuilder()
+                .withAggregations(chatDataAgg)
+                .build();
+
+        SearchHits<UserChat> search = elasticsearchRestTemplate.search(build, UserChat.class);
+        Aggregations aggregations = (Aggregations) search.getAggregations().aggregations();
+        Terms chatDataAgg1 = aggregations.get("chatDataAgg");
+        List<? extends Terms.Bucket> buckets = chatDataAgg1.getBuckets();
+        List<UserChatVO> collect = buckets.stream().map((bucket) -> {
+            String keyAsString = bucket.getKeyAsString();
+            long docCount = bucket.getDocCount();
+            return new UserChatVO(keyAsString, docCount);
+        }).collect(Collectors.toList());
+        return ResultUtils.success(collect);
     }
 }
