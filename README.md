@@ -98,5 +98,5 @@
         }
     ```
 
-	2. 重载配置 ngixn reload
 
+2. 重载配置 ngixn reload
