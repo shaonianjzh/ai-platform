@@ -16,7 +16,6 @@ server:
   port: 7529
   servlet:
     context-path: /api
-
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
