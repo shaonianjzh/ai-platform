@@ -106,13 +106,6 @@
             <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
-        <!--https://github.com/justauth/JustAuth-->
-        <!--集成三方登录-->
-        <dependency>
-            <groupId>com.xkcoding.justauth</groupId>
-            <artifactId>justauth-spring-boot-starter</artifactId>
-            <version>1.4.0</version>
-        </dependency>
         <!-- 发送邮件-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -37,18 +37,6 @@ spring:
     uris: http://localhost:9200
     username: #账号
     password: #密码
-#集成第三方登录
-#参考 https://www.justauth.cn/
-justauth:
-  enabled: true
-  type:
-    GITEE:
-      client-id:
-      client-secret:
-      redirect-uri:
-  cache:
-    type: default
-
 #讯飞AI 配置
 ai:
   xunfei:
