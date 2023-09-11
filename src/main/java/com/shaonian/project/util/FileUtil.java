@@ -1,5 +1,6 @@
 package com.shaonian.project.util;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.shaonian.project.common.ErrorCode;
 import com.shaonian.project.exception.BusinessException;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,7 +25,8 @@ public class FileUtil {
 
     public String upload(MultipartFile file){
         try {
-            file.transferTo(new File(src+file.getOriginalFilename()));
+            long id = IdWorker.getId();
+            file.transferTo(new File(src+id+file.getOriginalFilename()));
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"图片上传失败");
         }

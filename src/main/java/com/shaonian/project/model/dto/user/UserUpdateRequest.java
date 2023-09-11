@@ -63,8 +63,8 @@ public class UserUpdateRequest implements Serializable {
     /**
      * 到期时间
      */
-    @JsonFormat(pattern="yyyy-MM-dd" ,timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date expireTime;
 
     /**
