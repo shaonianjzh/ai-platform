@@ -1,5 +1,9 @@
 # 少年科技AI平台
-> 【前端演示】：http://ai.iamshaonian.top/
+> 【前端演示】：http://ai.iamshaonian.top/ 
+> 
+>  体验账号：jiangzihao  
+> 
+>  密码：12345678
 >
 > 【后台管理端演示】：http://ai.iamshaonian.top:5601/
 ## 项目简介
