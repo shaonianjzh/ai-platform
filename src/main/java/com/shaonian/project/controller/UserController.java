@@ -19,6 +19,7 @@ import com.shaonian.project.model.vo.UserVO;
 import com.shaonian.project.service.UserCollectService;
 import com.shaonian.project.service.UserService;
 import com.shaonian.project.util.FileUtil;
+import com.shaonian.project.util.JwtUtil;
 import com.shaonian.project.util.ValidateUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -47,6 +48,9 @@ public class UserController {
 
     @Resource
     private FileUtil fileUtil;
+
+    @Resource
+    private JwtUtil jwtUtil;
 
     // region 登录相关
 
@@ -126,7 +130,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
-    public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<UserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -136,7 +140,9 @@ public class UserController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         User user = userService.userLogin(userAccount, userPassword, request);
-        return ResultUtils.success(user);
+        UserVO userVO = userService.getUserVO(user);
+        userVO.setToken(jwtUtil.createJWT(user));
+        return ResultUtils.success(userVO);
     }
 
     /**

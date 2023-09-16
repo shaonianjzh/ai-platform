@@ -43,6 +43,11 @@ ai:
     appId:
     apiKey:
     apiSecret:
+#jwt配置
+jwt:
+  config:
+    key: shaoniankey
+    expireTime: 259200000    #三天
 img:
   src: C:\Users\少年\Desktop\image\
   url: https://localhost/image/

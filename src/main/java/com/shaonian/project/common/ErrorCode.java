@@ -15,7 +15,8 @@ public enum ErrorCode {
     TOO_MANY_REQUEST(42900, "请求太频繁，请稍后再试"),
     FORBIDDEN_ERROR(40300, "禁止访问"),
     SYSTEM_ERROR(50000, "系统内部异常"),
-    OPERATION_ERROR(50001, "操作失败");
+    OPERATION_ERROR(50001, "操作失败"),
+    TOKEN_PARSE_ERROR(50002, "token 解析失败，请尝试重新登录！");
 
     /**
      * 状态码

@@ -15,8 +15,10 @@ import com.shaonian.project.model.enums.DomainEnum;
 import com.shaonian.project.service.ChatModelService;
 import com.shaonian.project.service.RedisLimiter;
 import com.shaonian.project.service.UserModelService;
+import com.shaonian.project.util.JwtUtil;
 import com.unfbx.sparkdesk.SparkDeskClient;
 import com.unfbx.sparkdesk.entity.*;
+import io.jsonwebtoken.Claims;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +40,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Component
-@ServerEndpoint("/websocket/chat/user/{userId}/{chatModelId}")
+@ServerEndpoint("/websocket/chat/user/{userId}/{chatModelId}/{token}")
 public class WebSocketServer {
 
 
@@ -71,6 +73,8 @@ public class WebSocketServer {
 
     private static UserMapper userMapper;
 
+    private static JwtUtil jwtUtil;
+
     private static final Gson gson = new Gson();
     /**
      * 用来存放每个客户端对应的WebSocketServer对象
@@ -79,13 +83,16 @@ public class WebSocketServer {
 
 
     @Autowired
-    public void setService(SparkDeskClient sparkDeskClient, StringRedisTemplate stringRedisTemplate, ChatModelService chatModelService, UserMapper userMapper, UserModelService userModelService, RedisLimiter redisLimiter) {
+    public void setService(SparkDeskClient sparkDeskClient, StringRedisTemplate stringRedisTemplate, ChatModelService chatModelService,
+                           UserMapper userMapper, UserModelService userModelService,
+                           RedisLimiter redisLimiter, JwtUtil jwtUtil) {
         WebSocketServer.sparkDeskClient = sparkDeskClient;
         WebSocketServer.stringRedisTemplate = stringRedisTemplate;
         WebSocketServer.chatModelService = chatModelService;
         WebSocketServer.userMapper = userMapper;
         WebSocketServer.userModelService = userModelService;
         WebSocketServer.redisLimiter = redisLimiter;
+        WebSocketServer.jwtUtil = jwtUtil;
     }
 
 
@@ -98,10 +105,14 @@ public class WebSocketServer {
      */
     @OnOpen
     @SneakyThrows
-    public void onOpen(Session session, @PathParam("userId") Long userId, @PathParam("chatModelId") Long chatModelId) {
+    public void onOpen(Session session, @PathParam("userId") Long userId, @PathParam("chatModelId") Long chatModelId,@PathParam("token") String token) {
         this.session = session;
         this.userId = userId;
         this.modelId = chatModelId;
+        //先鉴权
+        //校验用户的合法性，是否有调用次数
+        validateUser(token);
+
         if (webSocketMap.containsKey(userId)) {
             webSocketMap.remove(userId);
             webSocketMap.put(userId, this);
@@ -147,12 +158,9 @@ public class WebSocketServer {
 //    @Transactional(rollbackFor = Exception.class)
     public void onMessage(String msg) {
         log.info("[连接ID:{}] 收到消息:{}", this.userId, msg);
-        //校验用户的合法性，是否有调用次数
-        User user = validateUser(this.userId);
+
         //限流
         redisLimiter.doRateLimit(String.valueOf(userId));
-
-        //TODO 消息队列异步处理,优化
 
         //根据chatModelId获取模型预设
         ChatModel chatModel = chatModelService.getById(modelId);
@@ -191,7 +199,7 @@ public class WebSocketServer {
         userModelService.save(userModel);
 
 
-        //从数据库中查询最近5次对话记录更新缓存
+        //从数据库中查询最近10次对话记录更新缓存
         QueryWrapper<UserModel> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userId", userId);
         queryWrapper.eq("modelId", modelId);
@@ -230,12 +238,25 @@ public class WebSocketServer {
 
 
     /**
-     * 校验用户合法性
+     * 鉴权token
      *
-     * @param userId
+     * @param token
      */
-    private User validateUser(Long userId) {
-        User user = userMapper.selectById(this.userId);
+    private User validateUser(String token) {
+
+        if(token==null){
+            throw new BusinessException(ErrorCode.PARAMS_ERROR,"token 不能为空");
+        }
+        Claims claims = jwtUtil.parseJWT(token);
+        String id = claims.getId();
+        String userAccount = claims.getSubject();
+
+        if(!this.userId.equals(Long.parseLong(id))){
+            throw new BusinessException(ErrorCode.FORBIDDEN_ERROR,"账号不一致");
+        }
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount",userAccount);
+        User user = userMapper.selectOne(queryWrapper);
         if (user == null) {
             throw new BusinessException(ErrorCode.FORBIDDEN_ERROR, "不是本平台用户，禁止访问");
         }
@@ -282,7 +303,7 @@ public class WebSocketServer {
      */
     public AIChatRequest getAIChatRequest(String UUID, double temperature, List<Text> textList) {
         InHeader header = InHeader.builder().uid(UUID).appid(sparkDeskClient.getAppid()).build();
-        Parameter parameter = Parameter.builder().chat(Chat.builder().domain(DomainEnum.GENERAL.getName()).maxTokens(2048).temperature(temperature).build()).build();
+        Parameter parameter = Parameter.builder().chat(Chat.builder().domain(DomainEnum.GENERALV2.getName()).maxTokens(2048).temperature(temperature).build()).build();
         InPayload payload = InPayload.builder().message(Message.builder().text(textList).build()).build();
         return AIChatRequest.builder().header(header).parameter(parameter).payload(payload).build();
     }

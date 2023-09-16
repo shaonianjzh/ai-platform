@@ -27,7 +27,7 @@ public class XFAIConfig {
     @Bean
     public SparkDeskClient sparkDeskClient() {
         return SparkDeskClient.builder()
-                .host(SparkDesk.SPARK_API_HOST_WS_V1_1)
+                .host(SparkDesk.SPARK_API_HOST_WS_V2_1)
                 .appid(appId)
                 .apiKey(apiKey)
                 .apiSecret(apiSecret)
