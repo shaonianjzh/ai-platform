@@ -3,6 +3,7 @@ package com.shaonian.project.websocket;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.rholder.retry.Retryer;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.shaonian.project.common.ErrorCode;
@@ -75,6 +76,8 @@ public class WebSocketServer {
 
     private static JwtUtil jwtUtil;
 
+    private static Retryer retryer;
+
     private static final Gson gson = new Gson();
     /**
      * 用来存放每个客户端对应的WebSocketServer对象
@@ -85,7 +88,7 @@ public class WebSocketServer {
     @Autowired
     public void setService(SparkDeskClient sparkDeskClient, StringRedisTemplate stringRedisTemplate, ChatModelService chatModelService,
                            UserMapper userMapper, UserModelService userModelService,
-                           RedisLimiter redisLimiter, JwtUtil jwtUtil) {
+                           RedisLimiter redisLimiter, JwtUtil jwtUtil,Retryer retryer) {
         WebSocketServer.sparkDeskClient = sparkDeskClient;
         WebSocketServer.stringRedisTemplate = stringRedisTemplate;
         WebSocketServer.chatModelService = chatModelService;
@@ -93,6 +96,7 @@ public class WebSocketServer {
         WebSocketServer.userModelService = userModelService;
         WebSocketServer.redisLimiter = redisLimiter;
         WebSocketServer.jwtUtil = jwtUtil;
+        WebSocketServer.retryer = retryer;
     }
 
 
@@ -189,8 +193,9 @@ public class WebSocketServer {
         //生成用户每次的对话id
         long userModelId = IdWorker.getId();
         //调用AI接口
-        sparkDeskClient.chat(new XFChatListener(getAIChatRequest(this.userId.toString(), 0.3, textList), session, userModelId));
-
+        AIChatRequest aiChatRequest = getAIChatRequest(this.userId.toString(), 0.3, textList);
+        //使用Guava重试库保障接口稳定性
+        retryer.call(()-> sparkDeskClient.chat(new XFChatListener(aiChatRequest, session, userModelId)));
         //将每次的对话信息存入数据库
         UserModel userModel = new UserModel();
         userModel.setId(userModelId)
