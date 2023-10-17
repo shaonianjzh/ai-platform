@@ -30,6 +30,6 @@ public class FileUtil {
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"图片上传失败");
         }
-        return url+src+id+file.getOriginalFilename();
+        return url+id+file.getOriginalFilename();
     }
 }
