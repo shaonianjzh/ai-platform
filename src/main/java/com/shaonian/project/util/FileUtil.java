@@ -24,12 +24,12 @@ public class FileUtil {
     private String url;
 
     public String upload(MultipartFile file){
+        long id = IdWorker.getId();
         try {
-            long id = IdWorker.getId();
             file.transferTo(new File(src+id+file.getOriginalFilename()));
         } catch (IOException e) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR,"图片上传失败");
         }
-        return url+file.getOriginalFilename();
+        return url+src+id+file.getOriginalFilename();
     }
 }
